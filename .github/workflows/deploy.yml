@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - DevOps Dashboard
+name: 🚀 DevOps Deployment Dashboard CI/CD
 
 on:
   push:
@@ -6,31 +6,68 @@ on:
       - main
 
 jobs:
-  build-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write        # for committing and tagging
+      id-token: write        # for Azure login
+      packages: write
+
+    env:
+      AZURE_RG: devops-dash-rg
+      AKS_NAME: devops-dash-aks
+      ACR_NAME: devopsdashacr
+      IMAGE_NAME: devops-dashboard
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Login to Azure
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: ⚙️ Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Build Docker image
-      run: docker build . -t ${{ secrets.ACR_NAME }}.azurecr.io/devops-dashboard:v1
+      - name: 🔼 Bump version
+        id: bump
+        run: |
+          OLD_VERSION=$(cat version.txt)
+          IFS='.' read -r major minor patch <<< "$OLD_VERSION"
+          NEW_VERSION="$major.$minor.$((patch + 1))"
+          echo "$NEW_VERSION" > version.txt
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          git add version.txt
+          git commit -m "🔼 Bump version to v$NEW_VERSION" || echo "No changes"
+          git push || echo "No push needed"
 
-    - name: Login to ACR
-      run: az acr login --name ${{ secrets.ACR_NAME }}
+      - name: 🏷️ Tag release
+        run: |
+          git tag "v${{ steps.bump.outputs.new_version }}"
+          git push origin "v${{ steps.bump.outputs.new_version }}"
 
-    - name: Push Docker image to ACR
-      run: docker push ${{ secrets.ACR_NAME }}.azurecr.io/devops-dashboard:v1
+      - name: 🔑 Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Get AKS credentials
-      run: az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
+      - name: 🐳 Login to Azure Container Registry
+        run: |
+          az acr login --name $ACR_NAME
 
-    - name: Deploy to AKS
-      run: |
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
+      - name: 🏗️ Build and push Docker image
+        run: |
+          IMAGE_TAG=${{ steps.bump.outputs.new_version }}
+          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG .
+          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: ⚓ Set AKS context
+        run: |
+          az aks get-credentials --resource-group $AZURE_RG --name $AKS_NAME --overwrite-existing
+
+      - name: 🚀 Deploy to AKS
+        run: |
+          kubectl set image deployment/devops-dashboard devops-dashboard=$ACR_NAME.azurecr.io/$IMAGE_NAME:${{ steps.bump.outputs.new_version }}
+          kubectl rollout status deployment/devops-dashboard
