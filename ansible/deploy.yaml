@@ -1,0 +1,8 @@
+- name: Deploy DevOps Dashboard to AKS
+  hosts: localhost
+  tasks:
+    - name: Apply Kubernetes deployment
+      command: kubectl apply -f ../k8s/deployment.yaml
+
+    - name: Apply Kubernetes service
+      command: kubectl apply -f ../k8s/service.yaml

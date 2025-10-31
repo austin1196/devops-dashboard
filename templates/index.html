@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DevOps Dashboard</title>
+  <style>
+    body { font-family: Arial; background-color: #0d1117; color: #c9d1d9; text-align: center; padding: 50px; }
+    h1 { color: #58a6ff; }
+    .card { background: #161b22; padding: 20px; border-radius: 10px; margin: 20px auto; width: 400px; }
+  </style>
+</head>
+<body>
+  <h1>🚀 DevOps Deployment Dashboard</h1>
+  <div class="card">
+    <p><strong>Build Status:</strong> {{ build_status }}</p>
+    <p><strong>Uptime:</strong> {{ uptime }}</p>
+    <p><strong>Version:</strong> {{ version }}</p>
+    <p><strong>Commit ID:</strong> {{ commit_id }}</p>
+    <p><strong>Last Deployed:</strong> {{ last_deploy }}</p>
+  </div>
+</body>
+</html>
