@@ -1,0 +1,98 @@
+# ------------------------
+# Python
+# ------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+.env/
+.venv/
+env/
+ENV/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# ------------------------
+# Logs and runtime files
+# ------------------------
+*.log
+*.pid
+*.seed
+*.out
+
+# ------------------------
+# Docker
+# ------------------------
+*.tar
+.dockerignore
+docker-compose.override.yml
+# Ignore local docker images
+**/docker-image.tar
+
+# ------------------------
+# Terraform
+# ------------------------
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+crash.log
+override.tf
+override.tf.json
+
+# ------------------------
+# Ansible
+# ------------------------
+*.retry
+inventory
+*.vault_pass.txt
+
+# ------------------------
+# Azure CLI / Credentials
+# ------------------------
+.azure/
+*.json
+*.pem
+*.cer
+*.key
+*.csr
+
+# ------------------------
+# Kubernetes
+# ------------------------
+.kube/
+*.yaml~
+*.bak
+tmp/
+
+# ------------------------
+# Miscellaneous
+# ------------------------
+*.zip
+*.tar.gz
+*.7z
+*.bak
+*.tmp
+
+# ------------------------
+# GitHub Actions cache
+# ------------------------
+.github/workflows/*.log
